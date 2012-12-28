@@ -11,12 +11,14 @@
 
                 circle1 = new createjs.Shape();
                 circle1.graphics.beginFill("#cc00cc").drawCircle(0, 0, 20);
-                circle1.speed = 10;                
+                circle1.speed = 20;
+                circle1.acceleration = 5;
                 stage.addChild(circle1);
 
                 circle2 = new createjs.Shape();
-                circle2.graphics.beginFill("#cccc00").drawCircle(0, 0, 40);
-                circle2.speed = 5;   
+                circle2.graphics.beginFill("#cccc00").drawCircle(0, 0, 50);
+                circle2.speed = 10;   
+                circle2.acceleration = 2;
                 circle2.x = Math.random()* stage.canvas.width;
                 circle2.y = Math.random()* stage.canvas.height;
                 stage.addChild(circle2);
@@ -33,7 +35,11 @@
                 createjs.Ticker.setFPS(60);
         }
 
-        function tick() {
+        function tick(elapsedTime) {
+            
+            
+                circle1.speed = circle1.speed +  elapsedTime/1000*circle1.acceleration;
+                circle2.speed = circle2.speed +  elapsedTime/1000*circle2.acceleration;
             
             
                 if (circle1.x < 1) { 
@@ -48,9 +54,9 @@
                 
                 
                 if (circle1.xdirection == "right"){
-                    circle1.x = circle1.x + circle1.speed;
+                    circle1.x = circle1.x + elapsedTime/1000*circle1.speed;
                 } else {
-                    circle1.x = circle1.x - circle1.speed;  
+                    circle1.x = circle1.x - elapsedTime/1000*circle1.speed;  
                 }
                 
 
@@ -66,9 +72,9 @@
                 
                 
                 if (circle1.ydirection == "down"){
-                    circle1.y = circle1.y + circle1.speed;
+                    circle1.y = circle1.y + elapsedTime/1000*circle1.speed;
                 } else {
-                    circle1.y = circle1.y - circle1.speed;  
+                    circle1.y = circle1.y - elapsedTime/1000*circle1.speed;  
                 }
 
                 if (circle2.x < 1) { 
@@ -83,9 +89,10 @@
                 
                 
                 if (circle2.xdirection == "right"){
-                    circle2.x = circle2.x + circle2.speed;
+                    
+                    circle2.x = circle2.x + elapsedTime/1000*circle2.speed;
                 } else {
-                    circle2.x = circle2.x - circle2.speed;  
+                    circle2.x = circle2.x - elapsedTime/1000*circle2.speed;  
                 }
                 
 
@@ -101,9 +108,9 @@
                 
                 
                 if (circle2.ydirection == "down"){
-                    circle2.y = circle2.y + circle2.speed;
+                    circle2.y = circle2.y + elapsedTime/1000*circle2.speed;
                 } else {
-                    circle2.y = circle2.y - circle2.speed;  
+                    circle2.y = circle2.y - elapsedTime/1000*circle2.speed;  
                 }
 
 		var pt1 = circle1.globalToLocal(stage.mouseX, stage.mouseY);
@@ -150,8 +157,8 @@
             
                 }
                 
-                hud1.text = "X: " + circle1.x + " Y:" + circle1.y;
-                hud2.text = "X: " + circle2.x + " Y:" + circle2.y;
+                hud1.text = "X: " + circle1.x + " Y:" + circle1.y + " SPD: " + circle1.speed;
+                hud2.text = "X: " + circle2.x + " Y:" + circle2.y + " SPD: " + circle2.speed;
                 
                 stage.update(); // important!!
         }
@@ -159,7 +166,7 @@
     </script>
 </head>
 <body onLoad="init();">
-    <canvas id="demoCanvas" width="500" height="400" style="border:1px solid #000; background:#333333;">
+    <canvas id="demoCanvas" width="600" height="500" style="border:1px solid #000; background:#333333;">
         alternate content
     </canvas>
 </body>
