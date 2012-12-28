@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://code.createjs.com/easeljs-0.5.0.min.js"></script>
+    <script>
+        
+        var stage, ball, paddle1, hud1, paddle2, hud2, message;
+        
+        function init() {
+            
+            stage = new createjs.Stage("demoCanvas");
+
+
+            // ball
+            ball = new createjs.Shape();
+            ball.size = 15;
+            ball.graphics.beginRadialGradientFill(["rgba(255,255,255,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+            ball.speed = 250;
+            ball.acceleration = 10;
+            ball.x = Math.random()* stage.canvas.width;
+            ball.y = Math.random()* stage.canvas.height;
+            stage.addChild(ball);
+
+
+            // player 1
+            paddle1 = new createjs.Shape();
+            paddle1.size = 100;
+            paddle1.width = 10;
+            paddle1.color = "#cc00cc";
+            paddle1.human = false;
+            paddle1.score = 0;
+            paddle1.graphics.beginFill(paddle1.color).drawRoundRect(
+                ball.size,
+                stage.canvas.height/2 - paddle1.size/2,
+                paddle1.width, 
+                paddle1.size, 
+                5
+                );    
+            stage.addChild(paddle1);
+            
+            hud1 = new createjs.Text(paddle1.score, "35px Arial",paddle1.color);
+            hud1.x = 20;
+            hud1.y = 20;
+            stage.addChild(hud1);
+
+
+
+
+            // player 2            
+            paddle2 = new createjs.Shape();
+            paddle2.size = 100;
+            paddle2.width = 10;
+            paddle2.color = "#cccc00";
+            paddle2.human = false;
+            paddle2.score = 0;
+            paddle2.graphics.beginFill(paddle2.color).drawRoundRect(
+                stage.canvas.width - paddle2.width - ball.size,
+                stage.canvas.height/2 - paddle2.size/2, 
+                paddle2.width, 
+                paddle2.size, 
+                5
+                ); 
+            stage.addChild(paddle2);
+            hud2 = new createjs.Text(paddle2.score, "35px Arial", paddle2.color);
+            hud2.x = stage.canvas.width - 100;
+            hud2.y = 20;
+            stage.addChild(hud2);
+
+
+
+            // message
+            message = new createjs.Text('Game start...',"25px Arial",'#fff');
+            message.x = stage.canvas.width/2 - 100;
+            message.y = ball.size;
+            stage.addChild(message);
+
+
+
+            // start
+            createjs.Ticker.addListener(this);
+            createjs.Ticker.setFPS(60);
+        }
+
+        function tick(elapsedTime) {
+            
+            // acceleration
+            ball.speed = ball.speed +  elapsedTime/1000*ball.acceleration;
+            
+            
+            // horizontal
+            if (ball.x < ball.size) { 
+                ball.xdirection = 'right';
+            }
+
+            if (ball.x > (stage.canvas.width - ball.size)) { 
+                ball.xdirection = 'left';
+            }
+
+            if (ball.xdirection == "right"){
+                ball.x = ball.x + elapsedTime/1000*ball.speed;
+            } else {
+                ball.x = ball.x - elapsedTime/1000*ball.speed;  
+            }
+                
+
+            // vertical
+            if (ball.y < ball.size) { 
+                ball.ydirection = 'down';
+            }
+
+            if (ball.y > (stage.canvas.height - ball.size)) { 
+                ball.ydirection = 'up';
+            }
+
+
+            if (ball.ydirection == "down"){
+                ball.y = ball.y + elapsedTime/1000*ball.speed;
+            } else {
+                ball.y = ball.y - elapsedTime/1000*ball.speed;  
+            }
+
+               
+            // auto play
+            if (!paddle1.human){                
+                paddle1.y = ball.y/2 - paddle2.size;
+            }
+
+            if (!paddle2.human){
+                paddle2.y = ball.y/2 - paddle2.size;
+            }
+
+            
+            var pt = ball.localToLocal(0,0,paddle1);
+            if (paddle1.hitTest(pt.x, pt.y)) { 
+
+                if (ball.ydirection == 'up'){
+                    ball.ydirection = 'down';
+                } else {
+                    ball.ydirection = 'up';
+                }
+                if (ball.xdirection == 'left'){
+                    ball.xdirection = 'right';
+                } else {
+                    ball.xdirection = 'left';
+                }
+                paddle1.score = paddle1.score + 50;
+            }
+
+            var pt = ball.localToLocal(0,0,paddle2);
+            if (paddle2.hitTest(pt.x, pt.y)) { 
+
+                if (ball.ydirection == 'up'){
+                    ball.ydirection = 'down';
+                } else {
+                    ball.ydirection = 'up';
+                }
+                if (ball.xdirection == 'left'){
+                    ball.xdirection = 'right';
+                } else {
+                    ball.xdirection = 'left';
+                }
+                paddle2.score = paddle2.score + 50;
+            }
+
+            hud1.text = paddle1.score;
+            hud2.text = paddle2.score;
+
+
+            
+
+            // update
+            if (ball.speed > 300){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+
+            if (ball.speed > 350){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='Speed is increasing..';
+            }
+
+            if (ball.speed > 400){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+            
+
+            if (ball.speed > 500){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='Speed is at level 2!';
+            }
+
+            
+            if (ball.speed > 550){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+
+            if (ball.speed > 800){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='Speed is at level 3!';
+            }
+
+            if (ball.speed > 850){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+            
+            if (ball.speed > 1000){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                if (paddle1.score > paddle2.score){
+                    message.text ='Player 1 is winning..';
+                } else if (paddle1.score < paddle2.score){
+                    message.text ='Player 2 is winning..';
+                } else {
+                    message.text ='It`s neck and neck..';
+                }
+            }
+            
+            if (ball.speed > 1050){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+            
+            if (ball.speed > 1100){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                if (paddle1.score > paddle2.score){
+                    message.text ='Player 2`s puck size inreased.';
+                    paddle2.width = paddle2.width *2;
+                } else if (paddle1.score < paddle2.score){
+                    message.text ='Player 1`s puck size inreased.';
+                    paddle1.width = paddle1.width *2;
+                } else {
+                    message.text ='hmmm lets make it interesting..';
+                    paddle1.width = paddle1.width /2;
+                    paddle2.width = paddle2.width /2;
+                }
+            }
+            
+            if (ball.speed > 1150){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+
+            if (ball.speed > 1200){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='Speed is increasing..';
+            }
+
+            if (ball.speed > 1250){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+
+            if (ball.speed > 1300){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='Speed is at level 4!';
+            }
+            
+            if (ball.speed > 1350){
+                //ball.graphics.beginRadialGradientFill(["rgba(1,1,1,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                message.text ='';
+            }
+            
+            stage.update(); // important!!
+        }
+        
+    </script>
+</head>
+<body onLoad="init();">
+    <canvas id="demoCanvas" width="600" height="500" style="border:1px solid #000; background:#333333;">
+        PONG
+    </canvas>
+</body>
+</html>
