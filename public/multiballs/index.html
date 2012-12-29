@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://code.createjs.com/easeljs-0.5.0.min.js"></script>
+    <script>
+        
+        var stage, balls;
+        
+        function init() {
+            
+            stage = new createjs.Stage("demoCanvas");
+
+
+            balls = stage.addChild(new createjs.Container());
+            balls.number = 5;
+            balls.tick = function (){
+                
+                var children = this.getNumChildren();
+                for (var index=0; index<children; index++) {
+                    
+                    var child = this.getChildAt(index);
+                    
+                    // mouseover
+                    var pt = child.globalToLocal(stage.mouseX, stage.mouseY);
+                    if (stage.mouseInBounds && child.hitTest(pt.x, pt.y)) { child.speed = 1; }
+                    
+                    // collision
+                    for (var cindex=0; cindex<children; cindex++) {
+                        var ball = this.getChildAt(cindex);
+                        var pt = child.localToLocal(ball.size,ball.size,ball);
+                        if (ball.hitTest(pt.x, pt.y)) { ball.bounce(); child.bounce(); }
+                    }
+                    
+                }
+                
+            }
+
+
+            for (var i=0; i<balls.number; i++) {
+                // ball
+                ball = new createjs.Shape();
+                ball.size = 15;
+                ball.speed = 100;
+                ball.acceleration = 40;
+                ball.deccelleration = 2;
+                ball.maxspeed = 400;
+                ball.graphics.beginRadialGradientFill(["rgba(255,255,255,1)","rgba(0,0,0,1)"],[0,1],0,0,0,0,0,60).drawCircle(0, 0, ball.size);
+                ball.x = Math.random()* stage.canvas.width;
+                ball.y = Math.random()* stage.canvas.height;
+                ball.move = function(elapsedTime){
+
+                    // horizontal
+                    if (this.x < this.size) { 
+                        this.left = false;
+                    }
+
+                    if (this.x > (stage.canvas.width - this.size)) { 
+                        this.left = true;
+                    }
+
+                    if (this.left){
+                        this.x = this.x - elapsedTime / 1000 * this.speed;
+                    } else {
+                        this.x = this.x + elapsedTime / 1000 * this.speed;  
+                    }
+
+                    // vertical
+                    if (this.y < this.size) { 
+                        this.down = true;
+                    }
+
+                    if (this.y > (stage.canvas.height - this.size)) { 
+                        this.down = false;
+                    }
+
+                    if (this.down){
+                        this.y = this.y + elapsedTime / 1000 * this.speed;
+                    } else {
+                        this.y = this.y - elapsedTime / 1000 * this.speed;  
+                    }
+
+                }
+                ball.bounce = function(){
+                    if (this.down){
+                        this.down = false;
+                    } else {
+                        this.down = true;
+                    }
+                    
+                    if (this.left){
+                        this.left = false;
+                    } else {
+                        this.left = true;
+                    }
+                    
+                    // alter speed
+                    this.speed = this.speed - this.deccelleration;
+                    if (this.speed < 1){
+                        this.speed = 1;
+                    }
+                }
+                ball.accelerate = function(elapsedTime){
+                    // acceleration
+                    if (this.speed < this.maxspeed){
+                        this.speed = this.speed + elapsedTime / 1000 * this.acceleration;
+                    }
+                }
+                ball.tick = function(elapsedTime){
+
+                    this.accelerate(elapsedTime);
+                    this.move(elapsedTime);
+
+                }
+                createjs.Ticker.addListener(ball);
+                balls.addChild(ball);
+                
+            }
+
+
+
+
+
+            // start
+            createjs.Ticker.addListener(balls);
+            createjs.Ticker.addListener(stage);
+            createjs.Ticker.setFPS(20);
+        }
+
+        
+        
+    </script>
+</head>
+<body onLoad="init();">
+    <canvas id="demoCanvas" width="600" height="500" style="border:1px solid #000; background:#333333;">
+        PONG
+    </canvas>
+</body>
+</html>
